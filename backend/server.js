@@ -1,18 +1,32 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+require('dotenv').config(); // Load environment variables
+
 const app = express();
 
-app.use(cors());
+// Middleware
+app.use(cors({
+  origin: ['http://localhost:3000', 'https://care-eco-beta.vercel.app'],
+  credentials: true
+}));
 app.use(express.json());
 
-app.use('/api/candidates', require('./routes/candidates'));
-app.use('/api/stats', require('./routes/stats'));
+// Routes
+const candidateRoutes = require('./routes/candidates');
+const statsRoutes = require('./routes/stats');
 
-mongoose.connect('mongodb://localhost:27017/voting-app', {
+app.use('/api/candidates', candidateRoutes);
+app.use('/api/stats', statsRoutes);
+
+// MongoDB Connection
+mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-}).then(() => {
-  console.log('MongoDB connected');
-  app.listen(5000, () => console.log('Server running on port 5000'));
-}).catch(err => console.error('MongoDB connection error:', err));
+})
+.then(() => {
+  console.log('✅ MongoDB connected');
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+})
+.catch(err => console.error('❌ MongoDB connection error:', err));

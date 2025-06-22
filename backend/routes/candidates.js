@@ -1,37 +1,26 @@
+// routes/candidateRoutes.js
+
 const express = require('express');
 const router = express.Router();
 const Candidate = require('../models/Candidate');
 
-// GET all candidates
+// Get all
 router.get('/', async (req, res) => {
-  try {
-    const candidates = await Candidate.find();
-    res.json(candidates);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch candidates' });
-  }
+  const candidates = await Candidate.find();
+  res.json(candidates);
 });
 
-// POST a new candidate
+// Add
 router.post('/', async (req, res) => {
-  try {
-    const { name, party, symbol, description } = req.body;
-    const newCandidate = new Candidate({ name, party, symbol, description });
-    await newCandidate.save();
-    res.status(201).json(newCandidate);
-  } catch (err) {
-    res.status(400).json({ error: 'Failed to add candidate' });
-  }
+  const newCandidate = new Candidate(req.body);
+  const saved = await newCandidate.save();
+  res.status(201).json(saved);
 });
 
-// DELETE a candidate
+// Delete
 router.delete('/:id', async (req, res) => {
-  try {
-    await Candidate.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Candidate removed' });
-  } catch (err) {
-    res.status(400).json({ error: 'Failed to delete candidate' });
-  }
+  await Candidate.findByIdAndDelete(req.params.id);
+  res.status(204).send();
 });
 
 module.exports = router;
